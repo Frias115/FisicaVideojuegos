@@ -13,6 +13,7 @@ public abstract class MovementController : MonoBehaviour {
 	public float JumpSpeed = 3.5f;
 	public float FullJumpTime = .35f;
 	public float MinJumpPercent = .4f;
+	public int numberOfJumps = 1;
 
 	protected BoxCollider2D box;
 	protected Rigidbody2D rb;
@@ -33,6 +34,7 @@ public abstract class MovementController : MonoBehaviour {
 	protected float _jumpStartY;
 	protected Vector2 _lastPosition;
 
+	protected int _numberOfJumps;
 	public Vector2 Facing {
 		get {
 			return facing;
@@ -228,11 +230,23 @@ public abstract class MovementController : MonoBehaviour {
 
 	protected void TryJump () {
 		if (collidingBelow) {
+			_numberOfJumps = numberOfJumps;
 			// Saltar
 			_jumpPressTime = Time.time;
 			_jumpStartY = transform.position.y;
 			state = ControllerState.JumpAscending;
 			targetHeight = _jumpStartY + JumpHeight;
+			_numberOfJumps--;
+		}
+
+		if (_numberOfJumps != numberOfJumps && _numberOfJumps > 0){
+			// Saltar
+			_jumpPressTime = Time.time;
+			_jumpStartY = transform.position.y;
+			state = ControllerState.JumpAscending;
+			targetHeight = _jumpStartY + JumpHeight;	
+			_numberOfJumps--;		
+
 		}
 	}
 
