@@ -769,7 +769,7 @@ Transform:
   m_PrefabInternal: {fileID: 100100000}
   m_GameObject: {fileID: 1074971504371462}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: -12, y: 3, z: 0}
+  m_LocalPosition: {x: -13.63, y: 3, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children:
   - {fileID: 4314559682367290}
@@ -978,7 +978,7 @@ Rigidbody2D:
   m_Material: {fileID: 0}
   m_Interpolate: 0
   m_SleepingMode: 1
-  m_CollisionDetection: 0
+  m_CollisionDetection: 1
   m_Constraints: 0
 --- !u!61 &61371793708910082
 BoxCollider2D:
@@ -1050,7 +1050,7 @@ MonoBehaviour:
   MaxSpeed: 4
   ObstacleMask:
     serializedVersion: 2
-    m_Bits: 3072
+    m_Bits: 7168
   MovingPlatformMask:
     serializedVersion: 2
     m_Bits: 2048
@@ -1063,8 +1063,13 @@ MonoBehaviour:
   FullJumpTime: 0.35
   MinJumpPercent: 0.4
   numberOfJumps: 5
+  sprintingBoost: 3
+  crouchVelocityMultiplier: 0.5
+  scaleCrouch: {x: 0.5, y: 0.5}
+  crouchColliderSize: {x: 0.5, y: 0.5}
   DaggerPrefab: {fileID: 1175176665439204, guid: 20bda30a574f6a149b6961871caaf7fd,
     type: 2}
+  throwVelocity: 6
 --- !u!210 &210513746990950174
 SortingGroup:
   m_ObjectHideFlags: 1

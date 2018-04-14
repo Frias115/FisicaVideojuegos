@@ -14,6 +14,12 @@ public abstract class MovementController : MonoBehaviour {
 	public float FullJumpTime = .35f;
 	public float MinJumpPercent = .4f;
 	public int numberOfJumps = 1;
+	public float sprintingBoost = 3f;
+	[Range(0.0f, 1.0f)]
+	public float crouchVelocityMultiplier;
+	public Vector2 scaleCrouch;
+	public Vector2 crouchColliderSize;
+
 
 	protected BoxCollider2D box;
 	protected Rigidbody2D rb;
@@ -33,8 +39,11 @@ public abstract class MovementController : MonoBehaviour {
 	protected float _jumpPressTime;
 	protected float _jumpStartY;
 	protected Vector2 _lastPosition;
-
+	protected bool sprinting;
+	protected bool crouching;
 	protected int _numberOfJumps;
+	protected Vector3 originalScale;
+	protected Vector3 originalColliderSize;
 	public Vector2 Facing {
 		get {
 			return facing;
@@ -56,12 +65,15 @@ public abstract class MovementController : MonoBehaviour {
 		modelTransform = transform.Find("Model");
 		initialScale = modelTransform.localScale;
 		Facing = Vector2.right;
+		originalScale = modelTransform.localScale;
+		originalColliderSize = box.size;
 	}
 	
 	// Update is called once per frame
 	virtual protected void Update () {
 		DetermineDirection ();
 		CheckCollisions ();
+		CheckCrouch();
 		if (!_health || _health.IsAlive) {
 			SetHorizontalSpeed ();
 		}
@@ -191,17 +203,30 @@ public abstract class MovementController : MonoBehaviour {
 				Facing = Vector2.left;
 			}
 			if (!collidingLeft) {
-				velocity = new Vector2 (h * MaxSpeed, velocity.y);
+				if(sprinting){
+					velocity = new Vector2 (h * MaxSpeed * sprintingBoost, velocity.y);
+				}else if(crouching){
+					velocity = new Vector2 (h * MaxSpeed * crouchVelocityMultiplier, velocity.y);
+				}
+				else
+					velocity = new Vector2 (h * MaxSpeed, velocity.y);
 			} else {
 				velocity = new Vector2 (0, velocity.y);
 			}
+
 		} else if (h > .01f) {
 			if (Facing.x < 0) {
 				Facing = Vector2.right;
 			}
 
 			if (!collidingRight) {
-				velocity = new Vector2 (h * MaxSpeed, velocity.y);
+				if(sprinting){
+					velocity = new Vector2 (h * MaxSpeed * sprintingBoost, velocity.y);
+				}else if(crouching){
+					velocity = new Vector2 (h * MaxSpeed * crouchVelocityMultiplier, velocity.y);
+				}
+				else
+					velocity = new Vector2 (h * MaxSpeed, velocity.y);
 			} else {
 				velocity = new Vector2 (0, velocity.y);
 			}
@@ -247,6 +272,19 @@ public abstract class MovementController : MonoBehaviour {
 			targetHeight = _jumpStartY + JumpHeight;	
 			_numberOfJumps--;		
 
+		}
+	}
+
+	protected void CheckCrouch(){
+		if(crouching){
+			modelTransform.localScale = scaleCrouch;
+			box.size = crouchColliderSize;
+		} else {
+			modelTransform.localScale = originalScale;
+			box.size = originalColliderSize;
+		}
+		if(facing.x < 0){
+			modelTransform.localScale = new Vector3(-modelTransform.localScale.x, modelTransform.localScale.y, modelTransform.localScale.z);
 		}
 	}
 

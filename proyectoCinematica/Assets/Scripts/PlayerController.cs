@@ -5,6 +5,7 @@ using UnityEngine;
 public class PlayerController : MovementController {
 
 	public GameObject DaggerPrefab;
+	public float throwVelocity = 6;
 
 	//https://pastebin.com/14H2X5j7
 
@@ -29,13 +30,41 @@ public class PlayerController : MovementController {
 			Debug.Log ("Jumping " + (JumpHeight * percentHeight) +" meters");
 		}
 
+		//Disparo
 		if (Input.GetMouseButtonDown(0)) {
-			// Lanzar daga
-			var dagger = GameObject.Instantiate(DaggerPrefab, transform.position, Quaternion.identity);
-			dagger.GetComponent<Rigidbody2D> ().velocity = facing * 15;
+			Vector3 direction = Camera.main.ScreenToWorldPoint(Input.mousePosition) - transform.position;
+			Vector2 offs = new Vector2(direction.x, direction.y);
+            float angl = Mathf.Atan2(offs.y, offs.x) * Mathf.Rad2Deg;
+			if(angl > 90 ){
+				angl = angl -180;
+			} else if(angl < -90){
+				angl = angl +180;
+			}
+			GameObject dagger = GameObject.Instantiate(DaggerPrefab, transform.position, Quaternion.Euler(0, 0, angl));
+			dagger.GetComponent<Rigidbody2D>().velocity = new Vector2(direction.x, direction.y).normalized * throwVelocity;    
 		}
 
+		//Correr
+		if(Input.GetKey(KeyCode.LeftShift)){  
+			sprinting = true;
+		}
+		else{
+			sprinting = false;
+		} 
+
+		//Agacharse
+		if(Input.GetKey(KeyCode.S)){
+			crouching = true;
+		} 
+		else{
+			crouching = false;
+		} 
+
 	}
+
+	float AngleBetweenTwoPoints(Vector3 a, Vector3 b) {
+       	return Mathf.Atan2(a.y - b.y, a.x - b.x) * Mathf.Rad2Deg;
+    }
 
 	protected override void DetermineDirection() {
 		h = Input.GetAxisRaw ("Horizontal");
