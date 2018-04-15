@@ -33,8 +33,7 @@ public class PlayerController : MovementController {
 		//Disparo
 		if (Input.GetMouseButtonDown(0)) {
 			Vector3 direction = Camera.main.ScreenToWorldPoint(Input.mousePosition) - transform.position;
-			Vector2 offs = new Vector2(direction.x, direction.y);
-            float angl = Mathf.Atan2(offs.y, offs.x) * Mathf.Rad2Deg;
+            float angl = Mathf.Atan2(direction.y, direction.x) * Mathf.Rad2Deg;
 			if(angl > 90 ){
 				angl = angl -180;
 			} else if(angl < -90){

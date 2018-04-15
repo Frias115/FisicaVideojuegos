@@ -44,6 +44,9 @@ public abstract class MovementController : MonoBehaviour {
 	protected int _numberOfJumps;
 	protected Vector3 originalScale;
 	protected Vector3 originalColliderSize;
+	protected float rotation;
+	protected Vector2 groundNormal;
+
 	public Vector2 Facing {
 		get {
 			return facing;
@@ -87,6 +90,7 @@ public abstract class MovementController : MonoBehaviour {
 	virtual protected void LateUpdate() {
 		velocity.y = Mathf.Clamp (velocity.y, -PhysicsSettings.MaxVerticalVelocity, PhysicsSettings.MaxVerticalVelocity);
 		rb.velocity = velocity + _movingPlatformSpeed;
+		rb.rotation = rotation;
 		_anim.SetFloat ("hVelocity", Mathf.Abs(h));
 		_lastPosition = new Vector2 (transform.position.x, transform.position.y);
 	}
@@ -136,6 +140,7 @@ public abstract class MovementController : MonoBehaviour {
 
 			if (collidingBelow) {
 				transform.position = new Vector3 (transform.position.x, groundY + box.size.y / 2, 0);
+				SetRotationAngle();
 			}
 
 			// Buscamos techo
@@ -197,19 +202,24 @@ public abstract class MovementController : MonoBehaviour {
 		}
 	}
 
+	protected void SetRotationAngle(){
+		groundNormal = Utils.Raycast2D(new Vector2(box.bounds.center.x, box.bounds.center.y), Vector2.down, box.bounds.size.y, ObstacleMask).normal;
+		transform.up = groundNormal;
+	}
 	protected void SetHorizontalSpeed() {
 		if (h < -.01f) {
 			if (Facing.x > 0) {
 				Facing = Vector2.left;
 			}
+			float angleVelocityMultiplier = CalculateVelocityOnAngle();
 			if (!collidingLeft) {
 				if(sprinting){
-					velocity = new Vector2 (h * MaxSpeed * sprintingBoost, velocity.y);
+					velocity = new Vector2 (h * MaxSpeed * sprintingBoost * angleVelocityMultiplier, velocity.y);
 				}else if(crouching){
-					velocity = new Vector2 (h * MaxSpeed * crouchVelocityMultiplier, velocity.y);
+					velocity = new Vector2 (h * MaxSpeed * crouchVelocityMultiplier * angleVelocityMultiplier, velocity.y);
 				}
 				else
-					velocity = new Vector2 (h * MaxSpeed, velocity.y);
+					velocity = new Vector2 (h * MaxSpeed * angleVelocityMultiplier, velocity.y);
 			} else {
 				velocity = new Vector2 (0, velocity.y);
 			}
@@ -218,15 +228,15 @@ public abstract class MovementController : MonoBehaviour {
 			if (Facing.x < 0) {
 				Facing = Vector2.right;
 			}
-
+			float angleVelocityMultiplier = CalculateVelocityOnAngle();
 			if (!collidingRight) {
 				if(sprinting){
-					velocity = new Vector2 (h * MaxSpeed * sprintingBoost, velocity.y);
+					velocity = new Vector2 (h * MaxSpeed * sprintingBoost * angleVelocityMultiplier, velocity.y);
 				}else if(crouching){
-					velocity = new Vector2 (h * MaxSpeed * crouchVelocityMultiplier, velocity.y);
+					velocity = new Vector2 (h * MaxSpeed * crouchVelocityMultiplier * angleVelocityMultiplier, velocity.y);
 				}
 				else
-					velocity = new Vector2 (h * MaxSpeed, velocity.y);
+					velocity = new Vector2 (h * MaxSpeed * angleVelocityMultiplier, velocity.y);
 			} else {
 				velocity = new Vector2 (0, velocity.y);
 			}
@@ -286,6 +296,32 @@ public abstract class MovementController : MonoBehaviour {
 		if(facing.x < 0){
 			modelTransform.localScale = new Vector3(-modelTransform.localScale.x, modelTransform.localScale.y, modelTransform.localScale.z);
 		}
+	}
+
+		protected float CalculateVelocityOnAngle(){
+		RaycastHit2D LeftHillDetector = Utils.Raycast2D(new Vector2(box.bounds.center.x, box.bounds.min.y + 0.2f), Vector2.left, box.bounds.size.x, ObstacleMask);
+		RaycastHit2D RightHillDetector = Utils.Raycast2D(new Vector2(box.bounds.center.x, box.bounds.min.y + 0.2f), Vector2.right, box.bounds.size.x, ObstacleMask);
+		float angleDiference = Mathf.Abs(Vector3.Angle(transform.up, Vector2.up));
+		angleDiference = 1 - (angleDiference / 100);
+
+		if(angleDiference == 0){
+			return 1;
+		} else if(LeftHillDetector && !RightHillDetector){
+			if(facing == Vector2.left){
+				return angleDiference;
+			}
+			else{ 
+				return (1+angleDiference);
+			}
+		}else if(RightHillDetector && !LeftHillDetector){
+			if(facing == Vector2.left){ 
+				return (1 + angleDiference);
+			}
+			else{ 
+				return angleDiference;
+			}
+		}
+		return angleDiference;
 	}
 
 	protected enum ControllerState {
