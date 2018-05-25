@@ -56,6 +56,11 @@ public class PlayerMovementController : MovementController {
 		}
 	}
 
+    public void Bounce()
+    {
+        _rb.AddForce(Vector3.up * JumpForce, ForceMode.VelocityChange);
+    }
+
     public float GetbaseAcceleration()
     {
         return baseAcceleration;
