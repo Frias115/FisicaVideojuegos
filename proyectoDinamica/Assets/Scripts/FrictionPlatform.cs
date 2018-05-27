@@ -4,7 +4,7 @@ using UnityEngine;
 
 public class FrictionPlatform : MonoBehaviour {
 
-    [Range(0.01f, 1.0f)]
+    [Range(0.0f, 1.0f)]
     public float friction;
 
     private float playerBaseAcceleration = -1, playerBaseDeceleration = -1;
@@ -23,7 +23,7 @@ public class FrictionPlatform : MonoBehaviour {
                 playerBaseDeceleration = other.GetComponentInParent<PlayerMovementController>().GetbaseDeceleration();
             }
 
-            other.GetComponentInParent<PlayerMovementController>().Acceleration = playerBaseAcceleration * friction;
+            other.GetComponentInParent<PlayerMovementController>().Acceleration = playerBaseAcceleration/2;
             other.GetComponentInParent<PlayerMovementController>().Deceleration = playerBaseDeceleration * friction;
         }
     }
@@ -31,7 +31,7 @@ public class FrictionPlatform : MonoBehaviour {
     {
         if (other.gameObject.layer == Layers.Player)
         {
-            other.GetComponentInParent<PlayerMovementController>().Acceleration = playerBaseAcceleration * friction;
+            other.GetComponentInParent<PlayerMovementController>().Acceleration = playerBaseAcceleration/2;
             other.GetComponentInParent<PlayerMovementController>().Deceleration = playerBaseDeceleration * friction;
         }
     }

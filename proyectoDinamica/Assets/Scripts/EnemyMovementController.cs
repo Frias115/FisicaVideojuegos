@@ -58,7 +58,29 @@ public class EnemyMovementController : MovementController {
 		return Vector2.zero;
 	}
 
-	void OnDrawGizmos() {
+    protected override Vector2 GetDesiredVelocity()
+    {
+        Vector3 movement = new Vector3(_input.x, 0, _input.y);
+        _rb.AddForce(movement * Acceleration, ForceMode.VelocityChange);
+        return new Vector2(_rb.velocity.x, _rb.velocity.z);
+    }
+
+    protected void LateUpdate()
+    {
+        Vector3 horizontalMovement = new Vector3(_input.x, 0, _input.y);
+        transform.LookAt(transform.position + horizontalMovement, Vector3.up);
+        _anim.SetFloat("MoveSpeed", _input.magnitude);
+    }
+
+    private void OnTriggerEnter(Collider other)
+    {
+        if (other.gameObject.layer == Layers.Player)
+        {
+            other.GetComponentInParent<PlayerHealth>().Lives--;
+        }
+    }
+
+    void OnDrawGizmos() {
 		if (_path != null) {
 			foreach (var corner in _path.corners) {
 				Gizmos.DrawWireSphere (corner, .5f);

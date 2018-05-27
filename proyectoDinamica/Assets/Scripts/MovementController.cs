@@ -12,25 +12,23 @@ public abstract class MovementController : MonoBehaviour {
 	public float MaxHorizontalSpeed = 5;
 	public float Acceleration = 80, Deceleration = 10;
 	public float JumpForce = 12;
+    public Vector3 forward, right;
 
-	// Use this for initialization
-	virtual protected void Awake () {
+    // Use this for initialization
+    virtual protected void Awake () {
 		_rb = GetComponent<Rigidbody> ();
 		_groundCheck = GetComponentInChildren<GroundCheck> ();
 		_anim = GetComponentInChildren<Animator> ();
 	}
 
 	abstract protected Vector2 GetDesiredMovement ();
+    abstract protected Vector2 GetDesiredVelocity();
 
-	// Update is called once per frame
-	virtual protected void Update () {
+
+    // Update is called once per frame
+    virtual protected void Update () {
 		_input = GetDesiredMovement();
-
-		var movement = new Vector3 (_input.x, 0, _input.y);
-
-		_rb.AddForce (movement * Acceleration, ForceMode.VelocityChange);
-
-		var velocity2d = new Vector2 (_rb.velocity.x, _rb.velocity.z);
+        Vector2 velocity2d = GetDesiredVelocity();
 
 		var currentSpeed = _rb.velocity;
 		currentSpeed.y = 0;
@@ -45,11 +43,5 @@ public abstract class MovementController : MonoBehaviour {
 		if (_groundCheck.MovingPlatformRb) {
 			_rb.AddForce (_groundCheck.MovingPlatformRb.velocity, ForceMode.VelocityChange);
 		}
-	}
-
-	virtual protected void LateUpdate() {
-		var horizontalMovement = new Vector3 (_input.x, 0, _input.y);
-		transform.LookAt (transform.position + horizontalMovement, Vector3.up);
-		_anim.SetFloat ("MoveSpeed", _input.magnitude);
 	}
 }
