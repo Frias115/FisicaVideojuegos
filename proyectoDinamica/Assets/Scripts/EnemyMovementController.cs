@@ -72,14 +72,6 @@ public class EnemyMovementController : MovementController {
         _anim.SetFloat("MoveSpeed", _input.magnitude);
     }
 
-    private void OnTriggerEnter(Collider other)
-    {
-        if (other.gameObject.layer == Layers.Player)
-        {
-            other.GetComponentInParent<PlayerHealth>().Lives--;
-        }
-    }
-
     void OnDrawGizmos() {
 		if (_path != null) {
 			foreach (var corner in _path.corners) {

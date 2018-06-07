@@ -40,7 +40,7 @@ public class PlayerMovementController : MovementController {
 
         Vector3 movement = _input.y * forward * Acceleration + _input.x * right * Acceleration;
         _rb.AddForce(movement, ForceMode.VelocityChange);
-        Quaternion direction = Quaternion.LookRotation(movement);
+        Quaternion direction = Quaternion.LookRotation(forward);
         transform.rotation = Quaternion.Lerp(transform.rotation, direction, 100 * Time.deltaTime);
 
         return new Vector2(_rb.velocity.x, _rb.velocity.z);
@@ -96,6 +96,7 @@ public class PlayerMovementController : MovementController {
             var percentStrength = Mathf.Clamp(shootPressTimer, ShootPressTimeThreshold, 1);
             maxShootForce *= percentStrength;
             Shoot();
+            shootPressTimer = 0;
         }
     }
 
@@ -104,7 +105,7 @@ public class PlayerMovementController : MovementController {
         var go = Instantiate(BombPrefab, transform.position, Quaternion.identity);
         go.GetComponent<Rigidbody>().AddForce(transform.forward * maxShootForce, ForceMode.VelocityChange);
 
-        ShootPressTimeThreshold = 0;
+        shootPressTimer = 0;
         maxShootForce = _maxShootForce;
     }
 
